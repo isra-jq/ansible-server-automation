@@ -1,0 +1,22 @@
+---
+# Defaults for Samba role
+samba_packages:
+  - samba
+  - samba-client
+samba_services:
+  - smb
+  - nmb
+
+samba_system_group: sambagroup
+samba_system_user: sambauser
+samba_user_password: "{{ vault_samba_user_password | default('SambaSecurePass2026!') }}"
+
+samba_share_name: "OpenSuseShare"
+samba_share_comment: "OpenSUSE 16.0 Automated Shared Resource"
+samba_share_path: "/srv/samba/shared"
+
+samba_create_mask: "0775"
+samba_directory_mask: "0775"
+samba_read_only: "no"
+samba_guest_ok: "no"
+samba_workgroup: "WORKGROUP"

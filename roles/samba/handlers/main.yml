@@ -1,0 +1,11 @@
+---
+# Handlers for Samba role
+- name: restart smb
+  ansible.builtin.systemd:
+    name: smb
+    state: restarted
+
+- name: restart nmb
+  ansible.builtin.systemd:
+    name: nmb
+    state: restarted

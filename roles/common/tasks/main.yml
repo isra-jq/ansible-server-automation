@@ -1,0 +1,20 @@
+---
+# Common Tasks for OpenSUSE 16.0
+- name: Refresh zypper repositories cache (OpenSUSE)
+  community.general.zypper:
+    name: "*"
+    state: latest
+    update_cache: true
+  when: ansible_os_family == "Suse"
+  failed_when: false # Prevent failure if no internet repo changes occur
+
+- name: Install common essential system packages
+  community.general.zypper:
+    name: "{{ common_packages }}"
+    state: present
+
+- name: Ensure firewalld service is enabled and started
+  ansible.builtin.systemd:
+    name: firewalld
+    state: started
+    enabled: true

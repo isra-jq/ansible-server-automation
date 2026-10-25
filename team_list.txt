@@ -1,0 +1,7 @@
+# ==============================================================================
+# TEAM MEMBER LIST (team_list.txt)
+# Format: Name and Surname, Group, codsis, cell phone
+# ==============================================================================
+Israel J. Q., Grupo 1, 202012345, +591 70000000
+# Add additional team members below if applicable:
+# Name and Surname, Group, codsis, cell phone

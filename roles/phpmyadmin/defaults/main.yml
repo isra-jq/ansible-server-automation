@@ -1,0 +1,9 @@
+---
+# Defaults for PhpMyAdmin role
+phpmyadmin_version: "5.2.1"
+phpmyadmin_install_dir: "/srv/www/htdocs/phpmyadmin"
+phpmyadmin_blowfish_secret: "H2o3k7N8b6V4c2X9z1A5s7D3f8G2h4J6"
+phpmyadmin_db_host: "127.0.0.1"
+phpmyadmin_db_port: "3306"
+phpmyadmin_web_user: "wwwrun"
+phpmyadmin_web_group: "www"

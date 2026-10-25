@@ -1,0 +1,29 @@
+---
+# Defaults for PostgreSQL role on OpenSUSE
+postgres_packages:
+  - postgresql-server
+  - postgresql-contrib
+  - python3-psycopg2
+  - php8-pgsql
+postgres_service: postgresql
+postgres_user: postgres
+postgres_group: postgres
+postgres_data_dir: /var/lib/pgsql/data
+postgres_port: 5432
+postgres_listen_addresses: "*"
+
+# Credentials (from vault or defaults)
+postgres_admin_user: postgres
+postgres_admin_password: "{{ vault_postgres_admin_password | default('PostgresAdminPass2026!') }}"
+
+# New Application User & Database
+postgres_app_db: production_db
+postgres_app_user: dbadmin
+postgres_app_password: "{{ vault_postgres_app_password | default('DbAdminSecurePass2026!') }}"
+
+# Remote Connections & Encryption
+postgres_remote_subnet: "0.0.0.0/0"
+postgres_auth_method: "scram-sha-256"
+postgres_ssl_enabled: "on"
+postgres_ssl_cert: "/var/lib/pgsql/data/server.crt"
+postgres_ssl_key: "/var/lib/pgsql/data/server.key"

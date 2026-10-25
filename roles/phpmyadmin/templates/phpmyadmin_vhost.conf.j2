@@ -1,0 +1,28 @@
+# Managed by Ansible - PhpMyAdmin Apache Configuration
+Alias /phpmyadmin "{{ phpmyadmin_install_dir }}"
+
+<Directory "{{ phpmyadmin_install_dir }}">
+    Options FollowSymLinks
+    DirectoryIndex index.php
+    AllowOverride All
+    Require all granted
+
+    <IfModule mod_php8.c>
+        php_admin_value upload_max_filesize 64M
+        php_admin_value post_max_size 64M
+        php_admin_value max_execution_time 360
+        php_admin_value max_input_time 360
+        php_admin_value memory_limit 256M
+    </IfModule>
+</Directory>
+
+# Disallow web access to directories that should not be exposed
+<Directory "{{ phpmyadmin_install_dir }}/setup/">
+    Require all denied
+</Directory>
+<Directory "{{ phpmyadmin_install_dir }}/libraries/">
+    Require all denied
+</Directory>
+<Directory "{{ phpmyadmin_install_dir }}/templates/">
+    Require all denied
+</Directory>

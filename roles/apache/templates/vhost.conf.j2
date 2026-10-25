@@ -1,0 +1,18 @@
+# ==============================================================================
+# Managed by Ansible - Apache VirtualHost for OpenSUSE 16.0
+# ==============================================================================
+
+<VirtualHost *:{{ apache_port }}>
+    ServerAdmin {{ apache_server_admin }}
+    ServerName {{ apache_server_name }}
+    DocumentRoot {{ apache_doc_root }}
+
+    <Directory "{{ apache_doc_root }}">
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog /var/log/apache2/default_error.log
+    CustomLog /var/log/apache2/default_access.log combined
+</VirtualHost>

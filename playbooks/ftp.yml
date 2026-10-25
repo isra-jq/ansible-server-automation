@@ -1,0 +1,8 @@
+---
+# Task 3: Deploy and Configure Secure vsftpd FTP Server
+- name: Deploy Secure FTP on OpenSUSE
+  hosts: ftp_servers
+  become: true
+  roles:
+    - common
+    - ftp

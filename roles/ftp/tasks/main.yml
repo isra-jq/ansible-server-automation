@@ -1,0 +1,65 @@
+---
+# Tasks for vsftpd FTP Server on OpenSUSE
+- name: Install vsftpd package
+  community.general.zypper:
+    name: "{{ ftp_package }}"
+    state: present
+
+- name: Create FTP shared root directory
+  ansible.builtin.file:
+    path: "{{ ftp_root_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create FTP system user with designated directory
+  ansible.builtin.user:
+    name: "{{ ftp_system_user }}"
+    password: "{{ ftp_user_password | password_hash('sha512') }}"
+    home: "{{ ftp_root_dir }}"
+    shell: /bin/bash
+    create_home: false
+    state: present
+  no_log: true
+
+- name: Create upload directory writable by FTP user
+  ansible.builtin.file:
+    path: "{{ ftp_root_dir }}/upload"
+    state: directory
+    owner: "{{ ftp_system_user }}"
+    group: "{{ ftp_system_user }}"
+    mode: "0775"
+
+- name: Deploy vsftpd configuration file
+  ansible.builtin.template:
+    src: vsftpd.conf.j2
+    dest: "{{ ftp_config_file }}"
+    owner: root
+    group: root
+    mode: "0600"
+  notify: restart vsftpd
+
+- name: Open FTP standard service in firewalld
+  ansible.posix.firewalld:
+    service: ftp
+    permanent: true
+    state: enabled
+    immediate: true
+  when: ansible_facts.services['firewalld.service'] is defined or true
+  failed_when: false
+
+- name: Open FTP passive port range in firewalld
+  ansible.posix.firewalld:
+    port: "{{ ftp_pasv_min_port }}-{{ ftp_pasv_max_port }}/tcp"
+    permanent: true
+    state: enabled
+    immediate: true
+  when: ansible_facts.services['firewalld.service'] is defined or true
+  failed_when: false
+
+- name: Ensure vsftpd service is enabled and started
+  ansible.builtin.systemd:
+    name: "{{ ftp_service }}"
+    state: started
+    enabled: true

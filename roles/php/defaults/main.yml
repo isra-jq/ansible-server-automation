@@ -1,0 +1,16 @@
+---
+# Defaults for PHP role
+php_packages:
+  - php8
+  - apache2-mod_php8
+  - php8-mysql
+  - php8-pgsql
+  - php8-mbstring
+  - php8-gd
+  - php8-zip
+  - php8-json
+  - php8-openssl
+  - php8-curl
+  - php8-intl
+php_apache_module: php8
+php_doc_root: /srv/www/htdocs

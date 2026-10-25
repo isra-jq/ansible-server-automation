@@ -1,0 +1,14 @@
+---
+# Defaults for apache role
+apache_package: apache2
+apache_service: apache2
+apache_user: wwwrun
+apache_group: www
+apache_port: 80
+apache_doc_root: /srv/www/htdocs
+apache_server_admin: admin@local.lan
+apache_server_name: opensuse-server.local
+apache_modules:
+  - rewrite
+  - actions
+  - headers

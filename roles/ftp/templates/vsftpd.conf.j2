@@ -1,0 +1,38 @@
+# ==============================================================================
+# Managed by Ansible - vsftpd Configuration (vsftpd.conf)
+# Target OS: OpenSUSE 16.0
+# Task 3 Requirement: vsftpd template file
+# ==============================================================================
+
+# General server setup
+ftpd_banner={{ ftp_banner }}
+listen=YES
+listen_ipv6=NO
+
+# Access Control
+anonymous_enable={{ ftp_anonymous_enable }}
+local_enable={{ ftp_local_enable }}
+write_enable={{ ftp_write_enable }}
+local_umask={{ ftp_local_umask }}
+dirmessage_enable=YES
+use_localtime=YES
+
+# Logging
+xferlog_enable=YES
+xferlog_file=/var/log/vsftpd.log
+xferlog_std_format=YES
+
+# Security & Chroot Jail
+chroot_local_user={{ ftp_chroot_local_user }}
+allow_writeable_chroot={{ ftp_allow_writeable_chroot }}
+
+# Connection & Ports
+connect_from_port_20=YES
+pasv_enable=YES
+pasv_min_port={{ ftp_pasv_min_port }}
+pasv_max_port={{ ftp_pasv_max_port }}
+
+# PAM service name on OpenSUSE
+pam_service_name=vsftpd
+userlist_enable=NO
+tcp_wrappers=YES

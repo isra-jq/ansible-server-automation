@@ -1,0 +1,57 @@
+# ==============================================================================
+# Managed by Ansible - PostgreSQL Configuration (postgresql.conf)
+# Target OS: OpenSUSE 16.0
+# Task 5 Requirement: Remote connection and SSL encryption
+# ==============================================================================
+
+# -----------------------------
+# Connections and Authentication
+# -----------------------------
+listen_addresses = '{{ postgres_listen_addresses }}'
+port = {{ postgres_port }}
+max_connections = 100
+password_encryption = {{ postgres_auth_method }}
+
+# -----------------------------
+# Security and Encryption (SSL)
+# -----------------------------
+ssl = {{ postgres_ssl_enabled }}
+ssl_cert_file = 'server.crt'
+ssl_key_file = 'server.key'
+ssl_ciphers = 'HIGH:MEDIUM:+3DES:!aNULL'
+ssl_prefer_server_ciphers = on
+
+# -----------------------------
+# Resource Usage (Memory)
+# -----------------------------
+shared_buffers = 128MB
+temp_buffers = 8MB
+work_mem = 4MB
+maintenance_work_mem = 64MB
+
+# -----------------------------
+# Write-Ahead Log (WAL)
+# -----------------------------
+wal_level = replica
+checkpoint_completion_target = 0.9
+
+# -----------------------------
+# Reporting and Logging
+# -----------------------------
+log_destination = 'stderr'
+logging_collector = on
+log_directory = 'log'
+log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+log_min_messages = warning
+log_line_prefix = '%m [%p] %q%u@%d '
+
+# -----------------------------
+# Locale and Formatting
+# -----------------------------
+datestyle = 'iso, ymd'
+timezone = 'UTC'
+lc_messages = 'en_US.UTF-8'
+lc_monetary = 'en_US.UTF-8'
+lc_numeric = 'en_US.UTF-8'
+lc_time = 'en_US.UTF-8'
+default_text_search_config = 'pg_catalog.english'

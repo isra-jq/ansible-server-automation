@@ -1,0 +1,8 @@
+---
+# Task 3: Deploy and Configure Samba Service
+- name: Deploy Samba Resource Sharing on OpenSUSE
+  hosts: samba_servers
+  become: true
+  roles:
+    - common
+    - samba

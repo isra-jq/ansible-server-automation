@@ -1,0 +1,11 @@
+---
+# Handlers for Apache role
+- name: restart apache2
+  ansible.builtin.systemd:
+    name: "{{ apache_service }}"
+    state: restarted
+
+- name: reload apache2
+  ansible.builtin.systemd:
+    name: "{{ apache_service }}"
+    state: reloaded

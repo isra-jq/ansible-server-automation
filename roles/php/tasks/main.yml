@@ -1,0 +1,27 @@
+---
+# Tasks for PHP on OpenSUSE
+- name: Install PHP 8 and extensions
+  community.general.zypper:
+    name: "{{ php_packages }}"
+    state: present
+  notify: restart apache2
+
+- name: Enable PHP module in Apache
+  ansible.builtin.command:
+    cmd: "a2enmod {{ php_apache_module }}"
+  register: a2enmod_php
+  changed_when: "'already enabled' not in a2enmod_php.stdout"
+  failed_when: false
+  notify: restart apache2
+
+- name: Deploy PHP info verification page
+  ansible.builtin.copy:
+    content: |
+      <?php
+      // OpenSUSE Automated Environment Diagnostic
+      phpinfo();
+      ?>
+    dest: "{{ php_doc_root }}/info.php"
+    owner: wwwrun
+    group: www
+    mode: "0644"

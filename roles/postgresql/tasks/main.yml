@@ -1,0 +1,113 @@
+---
+# Tasks for PostgreSQL Database on OpenSUSE
+- name: Install PostgreSQL server and PHP PostgreSQL connection library
+  community.general.zypper:
+    name: "{{ postgres_packages }}"
+    state: present
+  notify: restart apache2
+
+- name: Check if PostgreSQL database cluster is initialized
+  ansible.builtin.stat:
+    path: "{{ postgres_data_dir }}/PG_VERSION"
+  register: pg_initialized
+
+- name: Initialize PostgreSQL database cluster
+  ansible.builtin.command:
+    cmd: /usr/bin/initdb -D {{ postgres_data_dir }}
+  become: true
+  become_user: "{{ postgres_user }}"
+  when: not pg_initialized.stat.exists
+
+- name: Check if SSL certificates exist for PostgreSQL
+  ansible.builtin.stat:
+    path: "{{ postgres_data_dir }}/server.crt"
+  register: ssl_cert_stat
+
+- name: Generate self-signed SSL certificate for PostgreSQL encryption
+  ansible.builtin.command:
+    cmd: >
+      openssl req -new -x509 -days 3650 -nodes -text
+      -out {{ postgres_data_dir }}/server.crt
+      -keyout {{ postgres_data_dir }}/server.key
+      -subj "/C=BO/ST=Cochabamba/L=Cochabamba/O=DevOps/CN=opensuse-postgres"
+  become: true
+  become_user: "{{ postgres_user }}"
+  when: not ssl_cert_stat.stat.exists
+
+- name: Enforce strict permissions on PostgreSQL SSL private key
+  ansible.builtin.file:
+    path: "{{ postgres_data_dir }}/server.key"
+    owner: "{{ postgres_user }}"
+    group: "{{ postgres_group }}"
+    mode: "0600"
+
+- name: Enforce permissions on PostgreSQL SSL certificate
+  ansible.builtin.file:
+    path: "{{ postgres_data_dir }}/server.crt"
+    owner: "{{ postgres_user }}"
+    group: "{{ postgres_group }}"
+    mode: "0644"
+
+- name: Deploy PostgreSQL configuration (postgresql.conf)
+  ansible.builtin.template:
+    src: postgresql.conf.j2
+    dest: "{{ postgres_data_dir }}/postgresql.conf"
+    owner: "{{ postgres_user }}"
+    group: "{{ postgres_group }}"
+    mode: "0600"
+  notify: restart postgresql
+
+- name: Deploy PostgreSQL client authentication configuration (pg_hba.conf)
+  ansible.builtin.template:
+    src: pg_hba.conf.j2
+    dest: "{{ postgres_data_dir }}/pg_hba.conf"
+    owner: "{{ postgres_user }}"
+    group: "{{ postgres_group }}"
+    mode: "0600"
+  notify: reload postgresql
+
+- name: Ensure PostgreSQL service is enabled and started
+  ansible.builtin.systemd:
+    name: "{{ postgres_service }}"
+    state: started
+    enabled: true
+
+- name: Flush handlers to ensure PostgreSQL is running with active configuration
+  ansible.builtin.meta: flush_handlers
+
+- name: Set postgres administrative user password
+  community.postgresql.postgresql_user:
+    name: "{{ postgres_admin_user }}"
+    password: "{{ postgres_admin_password }}"
+    state: present
+  become: true
+  become_user: "{{ postgres_user }}"
+  no_log: true
+
+- name: Configure new application database user
+  community.postgresql.postgresql_user:
+    name: "{{ postgres_app_user }}"
+    password: "{{ postgres_app_password }}"
+    role_attr_flags: "CREATEDB,NOSUPERUSER"
+    state: present
+  become: true
+  become_user: "{{ postgres_user }}"
+  no_log: true
+
+- name: Configure new application database
+  community.postgresql.postgresql_db:
+    name: "{{ postgres_app_db }}"
+    owner: "{{ postgres_app_user }}"
+    encoding: "UTF8"
+    state: present
+  become: true
+  become_user: "{{ postgres_user }}"
+
+- name: Open PostgreSQL port in firewalld
+  ansible.posix.firewalld:
+    port: "{{ postgres_port }}/tcp"
+    permanent: true
+    state: enabled
+    immediate: true
+  when: ansible_facts.services['firewalld.service'] is defined or true
+  failed_when: false

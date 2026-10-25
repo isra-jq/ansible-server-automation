@@ -1,0 +1,93 @@
+---
+# Tasks for MariaDB on OpenSUSE
+- name: Install MariaDB and Python MySQL library
+  community.general.zypper:
+    name:
+      - "{{ mariadb_package }}"
+      - "{{ mariadb_client_package }}"
+      - "{{ mariadb_python_package }}"
+    state: present
+
+- name: Deploy MariaDB server configuration
+  ansible.builtin.template:
+    src: server.cnf.j2
+    dest: /etc/my.cnf.d/server.cnf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart mariadb
+
+- name: Ensure MariaDB service is enabled and started
+  ansible.builtin.systemd:
+    name: "{{ mariadb_service }}"
+    state: started
+    enabled: true
+
+- name: Flush handlers to ensure MariaDB is running with latest config
+  ansible.builtin.meta: flush_handlers
+
+- name: Verify connection without password
+  ansible.builtin.command:
+    cmd: mysql -u root -e "SELECT 1;"
+  register: mysql_no_pass
+  failed_when: false
+  changed_when: false
+
+- name: Update MariaDB root password when unauthenticated
+  ansible.builtin.command:
+    cmd: >
+      mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mariadb_root_password }}'; FLUSH PRIVILEGES;"
+  when: mysql_no_pass.rc == 0
+  no_log: true
+
+- name: Deploy /root/.my.cnf for automated local root access
+  ansible.builtin.copy:
+    content: |
+      [client]
+      user=root
+      password="{{ mariadb_root_password }}"
+    dest: /root/.my.cnf
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+
+- name: Remove anonymous MariaDB user accounts
+  community.mysql.mysql_user:
+    name: ""
+    host_all: true
+    state: absent
+    config_file: /root/.my.cnf
+
+- name: Remove MariaDB test database
+  community.mysql.mysql_db:
+    name: test
+    state: absent
+    config_file: /root/.my.cnf
+
+- name: Create application database
+  community.mysql.mysql_db:
+    name: "{{ mariadb_database }}"
+    state: present
+    collation: utf8mb4_unicode_ci
+    encoding: utf8mb4
+    config_file: /root/.my.cnf
+
+- name: Create application database user with remote privileges
+  community.mysql.mysql_user:
+    name: "{{ mariadb_user }}"
+    password: "{{ mariadb_user_password }}"
+    host: "{{ mariadb_user_host }}"
+    priv: "{{ mariadb_database }}.*:ALL"
+    state: present
+    config_file: /root/.my.cnf
+  no_log: true
+
+- name: Open MariaDB port in firewalld
+  ansible.posix.firewalld:
+    port: "{{ mariadb_port }}/tcp"
+    permanent: true
+    state: enabled
+    immediate: true
+  when: ansible_facts.services['firewalld.service'] is defined or true
+  failed_when: false

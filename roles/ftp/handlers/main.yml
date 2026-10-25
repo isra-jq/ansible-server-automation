@@ -1,0 +1,6 @@
+---
+# Handlers for FTP role
+- name: restart vsftpd
+  ansible.builtin.systemd:
+    name: "{{ ftp_service }}"
+    state: restarted

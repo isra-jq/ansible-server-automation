@@ -1,0 +1,14 @@
+---
+# Defaults for MariaDB role
+mariadb_package: mariadb
+mariadb_client_package: mariadb-client
+mariadb_python_package: python3-PyMySQL
+mariadb_service: mariadb
+mariadb_port: 3306
+mariadb_bind_address: "0.0.0.0"
+
+mariadb_root_password: "{{ vault_mariadb_root_password | default('SuperMariadbRoot2026!') }}"
+mariadb_database: "app_database"
+mariadb_user: "app_user"
+mariadb_user_password: "{{ vault_mariadb_user_password | default('UserSecurePass2026!') }}"
+mariadb_user_host: "%"

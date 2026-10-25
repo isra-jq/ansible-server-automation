@@ -1,0 +1,11 @@
+---
+# Task 3: Deploy LAMP Stack (Apache, PHP, MariaDB, PhpMyAdmin)
+- name: Deploy LAMP Stack on OpenSUSE
+  hosts: lamp_servers
+  become: true
+  roles:
+    - common
+    - apache
+    - php
+    - mariadb
+    - phpmyadmin

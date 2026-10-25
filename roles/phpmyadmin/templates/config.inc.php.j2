@@ -1,0 +1,28 @@
+<?php
+/**
+ * Managed by Ansible - PhpMyAdmin Configuration
+ * OpenSUSE 16.0 Automation
+ */
+
+declare(strict_types=1);
+
+$cfg['blowfish_secret'] = '{{ phpmyadmin_blowfish_secret }}';
+
+$i = 0;
+$i++;
+
+/* Authentication type */
+$cfg['Servers'][$i]['auth_type'] = 'cookie';
+$cfg['Servers'][$i]['host'] = '{{ phpmyadmin_db_host }}';
+$cfg['Servers'][$i]['port'] = '{{ phpmyadmin_db_port }}';
+$cfg['Servers'][$i]['compress'] = false;
+$cfg['Servers'][$i]['AllowNoPassword'] = false;
+
+/* Directories for saving/loading files from server */
+$cfg['UploadDir'] = '';
+$cfg['SaveDir'] = '';
+$cfg['TempDir'] = '/tmp';
+
+/* Default language and theme */
+$cfg['DefaultLang'] = 'en';
+$cfg['ServerDefault'] = 1;

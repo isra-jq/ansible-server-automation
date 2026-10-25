@@ -1,0 +1,8 @@
+---
+# Task 5: Deploy PostgreSQL Role with PHP Support and SSL Remote Encryption
+- name: Deploy PostgreSQL Database on OpenSUSE
+  hosts: db_servers
+  become: true
+  roles:
+    - common
+    - postgresql

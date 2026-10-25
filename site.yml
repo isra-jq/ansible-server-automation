@@ -1,0 +1,62 @@
+---
+# ==============================================================================
+# Master Playbook: Linux Server Automation for OpenSUSE 16.0
+# Tasks Automated: Task 3 (LAMP / Samba / FTP) & Task 5 (PostgreSQL)
+# ==============================================================================
+
+- name: OpenSUSE 16.0 Enterprise Infrastructure Deployment
+  hosts: opensuse_servers
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: Verify Target Operating System Family
+      ansible.builtin.assert:
+        that:
+          - ansible_os_family == "Suse"
+        fail_msg: "This playbook is specifically tailored for OpenSUSE (detected: {{ ansible_os_family }} {{ ansible_distribution }} {{ ansible_distribution_version }})."
+        success_msg: "Confirmed OpenSUSE environment ({{ ansible_distribution }} {{ ansible_distribution_version }})."
+
+  roles:
+    - role: common
+      tags: [always, common]
+
+    # --- Task 3: LAMP Stack ---
+    - role: apache
+      tags: [lamp, apache]
+
+    - role: php
+      tags: [lamp, php]
+
+    - role: mariadb
+      tags: [lamp, mariadb, database]
+
+    - role: phpmyadmin
+      tags: [lamp, phpmyadmin]
+
+    # --- Task 3: Samba Resource Sharing ---
+    - role: samba
+      tags: [samba, storage]
+
+    # --- Task 3: Secure FTP Service ---
+    - role: ftp
+      tags: [ftp, vsftpd]
+
+    # --- Task 5: PostgreSQL Database Engine ---
+    - role: postgresql
+      tags: [postgresql, postgres, database]
+
+  post_tasks:
+    - name: Display Deployment Completion Summary
+      ansible.builtin.debug:
+        msg:
+          - "=========================================================="
+          - "  OPENSUSE 16.0 INFRASTRUCTURE AUTOMATION COMPLETE"
+          - "=========================================================="
+          - "Apache Web Server : http://{{ ansible_host | default(inventory_hostname) }}/"
+          - "PhpMyAdmin        : http://{{ ansible_host | default(inventory_hostname) }}/phpmyadmin/"
+          - "MariaDB Server    : {{ ansible_host | default(inventory_hostname) }}:3306"
+          - "Samba Share       : \\\\{{ ansible_host | default(inventory_hostname) }}\\{{ samba_share_name }}"
+          - "FTP Server        : ftp://{{ ftp_system_user }}@{{ ansible_host | default(inventory_hostname) }}:21"
+          - "PostgreSQL Server : {{ ansible_host | default(inventory_hostname) }}:5432 (SSL Enabled)"
+          - "=========================================================="

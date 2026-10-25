@@ -1,0 +1,49 @@
+---
+# Tasks for PhpMyAdmin on OpenSUSE
+- name: Check if PhpMyAdmin is already installed
+  ansible.builtin.stat:
+    path: "{{ phpmyadmin_install_dir }}/index.php"
+  register: pma_installed
+
+- name: Create PhpMyAdmin directory
+  ansible.builtin.file:
+    path: "{{ phpmyadmin_install_dir }}"
+    state: directory
+    owner: "{{ phpmyadmin_web_user }}"
+    group: "{{ phpmyadmin_web_group }}"
+    mode: "0755"
+
+- name: Download and extract PhpMyAdmin tarball if not installed
+  ansible.builtin.unarchive:
+    src: "https://files.phpmyadmin.net/phpMyAdmin/{{ phpmyadmin_version }}/phpMyAdmin-{{ phpmyadmin_version }}-all-languages.tar.gz"
+    dest: "{{ phpmyadmin_install_dir }}"
+    remote_src: true
+    extra_opts:
+      - --strip-components=1
+    owner: "{{ phpmyadmin_web_user }}"
+    group: "{{ phpmyadmin_web_group }}"
+  when: not pma_installed.stat.exists
+
+- name: Deploy PhpMyAdmin configuration (config.inc.php)
+  ansible.builtin.template:
+    src: config.inc.php.j2
+    dest: "{{ phpmyadmin_install_dir }}/config.inc.php"
+    owner: "{{ phpmyadmin_web_user }}"
+    group: "{{ phpmyadmin_web_group }}"
+    mode: "0640"
+
+- name: Deploy PhpMyAdmin Apache configuration snippet
+  ansible.builtin.template:
+    src: phpmyadmin_vhost.conf.j2
+    dest: /etc/apache2/vhosts.d/phpmyadmin.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: reload apache2
+
+- name: Ensure correct ownership on PhpMyAdmin directory
+  ansible.builtin.file:
+    path: "{{ phpmyadmin_install_dir }}"
+    owner: "{{ phpmyadmin_web_user }}"
+    group: "{{ phpmyadmin_web_group }}"
+    recurse: true

@@ -1,0 +1,13 @@
+---
+# ==============================================================================
+# Sensitive Vault Variables
+# Protect this file using Ansible Vault:
+#   ansible-vault encrypt inventory/group_vars/all/vault.yml
+# ==============================================================================
+
+vault_mariadb_root_password: "SuperMariadbRoot2026!"
+vault_mariadb_user_password: "UserSecurePass2026!"
+vault_samba_user_password: "SambaSecurePass2026!"
+vault_ftp_user_password: "FtpSecurePass2026!"
+vault_postgres_admin_password: "PostgresAdminPass2026!"
+vault_postgres_app_password: "DbAdminSecurePass2026!"

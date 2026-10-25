@@ -1,0 +1,19 @@
+# ==============================================================================
+# Managed by Ansible - PostgreSQL Client Authentication (pg_hba.conf)
+# Target OS: OpenSUSE 16.0
+# Task 5 Requirement: Remote connection and encryption
+# ==============================================================================
+
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# Local administrative socket connections
+local   all             postgres                                peer
+local   all             all                                     peer
+
+# Local IPv4 & IPv6 loopback
+host    all             all             127.0.0.1/32            {{ postgres_auth_method }}
+host    all             all             ::1/128                 {{ postgres_auth_method }}
+
+# Remote Encrypted Connections (Requires SSL / TLS)
+hostssl all             all             {{ postgres_remote_subnet }}            {{ postgres_auth_method }}
+hostssl all             all             ::/0                    {{ postgres_auth_method }}

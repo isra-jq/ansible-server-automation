@@ -1,0 +1,58 @@
+---
+# Tasks for Apache Web Server on OpenSUSE
+- name: Install Apache2 package
+  community.general.zypper:
+    name: "{{ apache_package }}"
+    state: present
+
+- name: Ensure Apache document root directory exists
+  ansible.builtin.file:
+    path: "{{ apache_doc_root }}"
+    state: directory
+    owner: "{{ apache_user }}"
+    group: "{{ apache_group }}"
+    mode: "0755"
+
+- name: Enable required Apache modules
+  ansible.builtin.command:
+    cmd: "a2enmod {{ item }}"
+  loop: "{{ apache_modules }}"
+  register: a2enmod_res
+  changed_when: "'already enabled' not in a2enmod_res.stdout"
+  failed_when: false
+  notify: restart apache2
+
+- name: Deploy Apache default VirtualHost configuration
+  ansible.builtin.template:
+    src: vhost.conf.j2
+    dest: /etc/apache2/vhosts.d/default.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: reload apache2
+
+- name: Deploy welcome index page
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: "{{ apache_doc_root }}/index.html"
+    owner: "{{ apache_user }}"
+    group: "{{ apache_group }}"
+    mode: "0644"
+
+- name: Open Apache HTTP and HTTPS ports in firewalld
+  ansible.posix.firewalld:
+    service: "{{ item }}"
+    permanent: true
+    state: enabled
+    immediate: true
+  loop:
+    - http
+    - https
+  when: ansible_facts.services['firewalld.service'] is defined or true
+  failed_when: false
+
+- name: Ensure Apache2 service is enabled and started
+  ansible.builtin.systemd:
+    name: "{{ apache_service }}"
+    state: started
+    enabled: true

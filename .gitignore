@@ -1,0 +1,29 @@
+# Ansible Artifacts & Cache
+*.retry
+*.pyc
+__pycache__/
+.cache/
+fact_cache/
+
+# Sensitive credentials & passwords (DO NOT COMMIT)
+.vault_pass
+.vault_pass.txt
+vault_password
+id_rsa
+id_ed25519
+*.pem
+*.key
+!roles/postgresql/templates/*.key.j2
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary archives
+*.tar.gz
+*.zip
+scratch/

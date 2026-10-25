@@ -1,0 +1,100 @@
+---
+# ==============================================================================
+# Global Variables for OpenSUSE 16.0 Deployment
+# Sensitive values are referenced from vault.yml
+# ==============================================================================
+
+# OS & Environment
+target_os_family: "Suse"
+timezone: "America/La_Paz"
+
+# Apache Configuration
+apache_package: apache2
+apache_service: apache2
+apache_port: 80
+apache_server_admin: "admin@local.lan"
+apache_server_name: "opensuse-server.local"
+apache_doc_root: "/srv/www/htdocs"
+
+# PHP Configuration
+php_packages:
+  - php8
+  - apache2-mod_php8
+  - php8-mysql
+  - php8-pgsql
+  - php8-mbstring
+  - php8-gd
+  - php8-zip
+  - php8-json
+  - php8-openssl
+  - php8-curl
+  - php8-intl
+
+# PhpMyAdmin Configuration
+phpmyadmin_version: "5.2.1"
+phpmyadmin_install_dir: "/srv/www/htdocs/phpmyadmin"
+phpmyadmin_blowfish_secret: "H2o3k7N8b6V4c2X9z1A5s7D3f8G2h4J6" # 32-char secret
+
+# MariaDB Configuration
+mariadb_package: mariadb
+mariadb_client_package: mariadb-client
+mariadb_python_package: python3-PyMySQL
+mariadb_service: mariadb
+mariadb_bind_address: "0.0.0.0"
+mariadb_port: 3306
+mariadb_root_password: "{{ vault_mariadb_root_password | default('SuperMariadbRoot2026!') }}"
+mariadb_database: "app_database"
+mariadb_user: "app_user"
+mariadb_user_password: "{{ vault_mariadb_user_password | default('UserSecurePass2026!') }}"
+
+# Samba Configuration
+samba_packages:
+  - samba
+  - samba-client
+samba_services:
+  - smb
+  - nmb
+samba_share_name: "OpenSuseShare"
+samba_share_comment: "OpenSUSE 16.0 Shared Automation Resource"
+samba_share_path: "/srv/samba/shared"
+samba_system_user: "sambauser"
+samba_system_group: "sambagroup"
+samba_user_password: "{{ vault_samba_user_password | default('SambaSecurePass2026!') }}"
+samba_create_mask: "0775"
+samba_directory_mask: "0775"
+samba_read_only: "no"
+samba_guest_ok: "no"
+
+# FTP (vsftpd) Configuration
+ftp_package: vsftpd
+ftp_service: vsftpd
+ftp_config_file: "/etc/vsftpd.conf"
+ftp_system_user: "ftpuser"
+ftp_user_password: "{{ vault_ftp_user_password | default('FtpSecurePass2026!') }}"
+ftp_root_dir: "/srv/ftp/shared"
+ftp_anonymous_enable: "NO"
+ftp_local_enable: "YES"
+ftp_write_enable: "YES"
+ftp_local_umask: "022"
+ftp_chroot_local_user: "YES"
+ftp_pasv_min_port: 40000
+ftp_pasv_max_port: 40100
+
+# PostgreSQL Configuration
+postgres_packages:
+  - postgresql-server
+  - postgresql-contrib
+  - python3-psycopg2
+  - php8-pgsql
+postgres_service: postgresql
+postgres_version: "16"
+postgres_data_dir: "/var/lib/pgsql/data"
+postgres_port: 5432
+postgres_listen_addresses: "*"
+postgres_admin_user: "postgres"
+postgres_admin_password: "{{ vault_postgres_admin_password | default('PostgresAdminPass2026!') }}"
+postgres_app_db: "production_db"
+postgres_app_user: "dbadmin"
+postgres_app_password: "{{ vault_postgres_app_password | default('DbAdminSecurePass2026!') }}"
+postgres_remote_subnet: "0.0.0.0/0"
+postgres_enable_ssl: true
